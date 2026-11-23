@@ -1,0 +1,53 @@
+trace trace: 40 experts, top-8, hidden 1536, intermediate 512, bits gate/up/down 4/4/8, 6 rounds, path GPU, bf16 rounding emulated
+device: NVIDIA A100-SXM4-40GB (sm_80)
+
+layer  check        rows    max |err|    max |ref|    rel err     cosine  result
+0      deq gate        -    0.000e+00    1.562e-01   0.00e+00   1.000000  ok
+0      deq up          -    0.000e+00    1.914e-01   0.00e+00   1.000000  ok
+0      deq down        -    0.000e+00    1.406e-01   0.00e+00   1.000000  ok
+0      r0 strict       8    4.292e-06    1.721e+01   2.49e-07   1.000000  ok
+0      r0 vs-mlx       8    6.250e-02    1.725e+01   3.62e-03   0.999997  info: close
+0      r1 strict       8    3.338e-06    1.196e+01   2.79e-07   1.000000  ok
+0      r1 vs-mlx       8    6.250e-02    1.194e+01   5.24e-03   0.999997  info: close
+0      r2 strict       8    2.861e-06    1.154e+01   2.48e-07   1.000000  ok
+0      r2 vs-mlx       8    3.125e-02    1.156e+01   2.70e-03   0.999998  info: close
+0      r3 strict       8    5.364e-06    1.306e+01   4.11e-07   1.000000  ok
+0      r3 vs-mlx       8    6.250e-02    1.300e+01   4.81e-03   0.999998  info: close
+0      r4 strict       8    3.815e-06    9.632e+00   3.96e-07   1.000000  ok
+0      r4 vs-mlx       8    6.250e-02    9.625e+00   6.49e-03   0.999997  info: close
+0      r5 strict       8    3.576e-06    9.679e+00   3.69e-07   1.000000  ok
+0      r5 vs-mlx       8    6.250e-02    9.688e+00   6.45e-03   0.999997  info: close
+16     deq gate        -    0.000e+00    1.035e-01   0.00e+00   1.000000  ok
+16     deq up          -    0.000e+00    8.936e-02   0.00e+00   1.000000  ok
+16     deq down        -    0.000e+00    2.832e-01   0.00e+00   1.000000  ok
+16     r0 strict       8    1.907e-06    9.492e+00   2.01e-07   1.000000  ok
+16     r0 vs-mlx       8    1.562e-02    9.500e+00   1.64e-03   0.999997  info: close
+16     r1 strict       8    9.537e-07    4.213e+00   2.26e-07   1.000000  ok
+16     r1 vs-mlx       8    3.125e-02    4.219e+00   7.41e-03   0.999996  info: close
+16     r2 strict       8    2.146e-06    4.564e+00   4.70e-07   1.000000  ok
+16     r2 vs-mlx       8    3.125e-02    4.562e+00   6.85e-03   0.999996  info: close
+16     r3 strict       8    1.907e-06    5.031e+00   3.79e-07   1.000000  ok
+16     r3 vs-mlx       8    7.812e-03    5.031e+00   1.55e-03   0.999997  info: close
+16     r4 strict       8    1.431e-06    9.724e+00   1.47e-07   1.000000  ok
+16     r4 vs-mlx       8    6.250e-02    9.750e+00   6.41e-03   0.999996  info: close
+16     r5 strict       8    3.815e-06    9.028e+00   4.23e-07   1.000000  ok
+16     r5 vs-mlx       8    1.562e-02    9.000e+00   1.74e-03   0.999996  info: close
+31     deq gate        -    0.000e+00    1.035e-01   0.00e+00   1.000000  ok
+31     deq up          -    0.000e+00    1.167e-01   0.00e+00   1.000000  ok
+31     deq down        -    0.000e+00    4.668e-01   0.00e+00   1.000000  ok
+31     r0 strict       8    3.052e-05    1.453e+02   2.10e-07   1.000000  ok
+31     r0 vs-mlx       8    2.500e-01    1.460e+02   1.71e-03   1.000000  info: close
+31     r1 strict       8    7.248e-05    1.531e+02   4.73e-07   1.000000  ok
+31     r1 vs-mlx       8    5.000e-01    1.530e+02   3.27e-03   0.999999  info: close
+31     r2 strict       8    9.155e-05    1.664e+02   5.50e-07   1.000000  ok
+31     r2 vs-mlx       8    5.000e-01    1.660e+02   3.01e-03   1.000000  info: close
+31     r3 strict       8    1.526e-04    1.583e+02   9.64e-07   1.000000  ok
+31     r3 vs-mlx       8    5.000e-01    1.580e+02   3.16e-03   1.000000  info: close
+31     r4 strict       8    9.155e-05    1.612e+02   5.68e-07   1.000000  ok
+31     r4 vs-mlx       8    1.250e-01    1.610e+02   7.76e-04   1.000000  info: close
+31     r5 strict       8    4.578e-05    1.437e+02   3.18e-07   1.000000  ok
+31     r5 vs-mlx       8    2.500e-01    1.430e+02   1.75e-03   1.000000  info: close
+
+27/27 checks passed (dequant: rel err <= 1e-5; strict: fp32 replay vs MLX float32 recompute, rel err <= 1.0e-04)
+vs-mlx rows compare with MLX's actual bf16 output and are informational (close = rel err <= 0.02, cosine >= 0.9999).
+rel err = max |replay - ref| / max |ref| over the whole round.

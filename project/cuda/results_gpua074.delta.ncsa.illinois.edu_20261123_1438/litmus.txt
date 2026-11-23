@@ -1,0 +1,21 @@
+device: NVIDIA A100-SXM4-40GB (sm_80, 108 SMs); 1024 instances x 2000 iterations per test, 128 stress blocks
+
+test variant            valid  invalid      (0,0)      (0,1)      (1,0)      (1,1)       weak  verdict
+MP   relaxed          2048000        0     512014      42866          1    1493119          1  allowed, observed
+MP   plain            2048000        0    1736674         84     309821       1421     309821  allowed, observed
+MP   fence_block      2048000        0     484856      75636          2    1487506          2  allowed, observed
+MP   fence_device     2048000        0      63311    1907013          0      77676          0  ok (forbidden, not seen)
+MP   ordered          2048000        0      85776    1881710          0      80514          0  ok (forbidden, not seen)
+SB   relaxed          2048000        0       1533    1507492     471657      67318       1533  allowed, observed
+SB   plain            2048000        0    2027952       2383      17665          0    2027952  allowed, observed
+SB   fence_block      2048000        0       1517    1493284     460277      92922       1517  allowed, observed
+SB   fence_device     2048000        0          0      76581      59548    1911871          0  ok (forbidden, not seen)
+SB   ordered          2048000        0          0      86704      75322    1885974          0  ok (forbidden, not seen)
+LB   relaxed          2048000        0      65169    1511001     471830          0          0  allowed, not observed
+LB   plain            2048000        0     144188    1468541     435271          0          0  allowed, not observed
+LB   fence_block      2048000        0      87017    1498156     462827          0          0  allowed, not observed
+LB   fence_device     2048000        0    1910315      77449      60236          0          0  ok (forbidden, not seen)
+LB   ordered          2048000        0    1958106      46606      43288          0          0  ok (forbidden, not seen)
+
+weak = MP (1,0), SB (0,0), LB (1,1). invalid = partner block never arrived within the spin limit.
+results -> results_gpua074.delta.ncsa.illinois.edu_20261123_1438/litmus.csv

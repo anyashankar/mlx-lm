@@ -1,0 +1,1 @@
+mlx 0.32.4 | mlx-lm 0.32.2 | macOS-26.4-arm64-arm-64bit | device Device(gpu, 0)

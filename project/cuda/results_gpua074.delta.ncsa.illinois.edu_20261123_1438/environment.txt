@@ -1,0 +1,21 @@
+== host
+gpua074.delta.ncsa.illinois.edu
+Mon Nov 23 14:38:25 CST 2026
+== modules
+
+Currently Loaded Modules:
+  1) libfabric/2.3.1      4) craype/2.7.36         7) PrgEnv-gnu/8.7.0  10) cudatoolkit/26.5_13.2  13) slurm-env/0.1
+  2) craype-network-ofi   5) cray-mpich/9.1.0      8) cray-dsmml/0.3.1  11) craype-accel-nvidia80  14) default-rh96
+  3) gcc-native/14        6) cray-libsci/26.03.0   9) craype-x86-milan  12) cue-login-env/1.1
+
+ 
+
+== nvcc
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2026 NVIDIA Corporation
+Built on Thu_Mar_19_11:12:51_PM_PDT_2026
+Cuda compilation tools, release 13.2, V13.2.78
+Build cuda_13.2.r13.2/compiler.37668154_0
+== GPU
+name, driver_version, memory.total [MiB], compute_cap
+NVIDIA A100-SXM4-40GB, 595.71.05, 40960 MiB, 8.0
