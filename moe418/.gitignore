@@ -1,0 +1,7 @@
+__pycache__/
+ext/build/
+ext/*.so
+ext/*.dylib
+ext/*.metallib
+ext/*.pyi
+litmus/litmus

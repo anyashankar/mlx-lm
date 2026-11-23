@@ -508,9 +508,21 @@ def speculative_generate_step(
     kv_bits: Optional[int] = None,
     kv_group_size: int = 64,
     quantized_kv_start: int = DEFAULT_QUANTIZED_KV_START,
+    draft_stop: Optional[Callable[[List[float]], bool]] = None,
+    draft_cut: Optional[Callable[[List[float]], int]] = None,
+    round_log: Optional[List[dict]] = None,
 ) -> Generator[Tuple[mx.array, mx.array, bool], None, None]:
     """
     A generator producing token ids based on the given prompt from the model.
+
+    Pre-pass truncation (15-418 project): ``draft_stop(probs)`` is called after
+    each draft token with the draft model's probabilities of the tokens drafted
+    so far and ends drafting early when it returns True. ``draft_cut(probs)``
+    then returns how many drafts (1..len(probs)) the target verifies; the rest
+    are dropped before the verify pass and the draft cache is trimmed to match.
+    Both default to None (stock behavior). If ``round_log`` is a list, one dict
+    per round is appended with the draft probabilities, drafted / verified /
+    accepted counts.
 
     Args:
         prompt (mx.array): The input prompt.
@@ -611,13 +623,20 @@ def speculative_generate_step(
 
     def _draft_generate(y, num_draft):
         if num_draft == 0:
-            return mx.array([], mx.uint32)
-        ys = []
+            return mx.array([], mx.uint32), []
+        ys, ps = [], []
+        need_probs = draft_stop is not None or draft_cut is not None or round_log is not None
         for _ in range(num_draft):
-            y, _ = _step(draft_model, draft_cache, y)
-            mx.async_eval(y)
+            y, lp = _step(draft_model, draft_cache, y)
+            if need_probs:
+                p = mx.exp(mx.take_along_axis(lp, y[:, None], axis=-1)).item()
+                ps.append(p)
+            else:
+                mx.async_eval(y)
             ys.append(y)
-        return mx.concatenate(ys)
+            if draft_stop is not None and draft_stop(ps):
+                break
+        return mx.concatenate(ys), ps
 
     with mx.stream(stream):
         draft_y = _prefill(draft_model, draft_cache, y)
@@ -630,7 +649,19 @@ def speculative_generate_step(
         try:
             while True:
                 num_draft = min(max_tokens - ntoks, num_draft_tokens)
-                draft_tokens = _draft_generate(draft_y, num_draft)
+                draft_tokens, draft_probs = _draft_generate(draft_y, num_draft)
+                num_drafted = draft_tokens.size
+                if num_drafted < num_draft:
+                    # stopped early: the draft cache has seen draft_y plus
+                    # num_drafted - 1 drafts, as if num_draft had been smaller
+                    num_draft = num_drafted
+                if draft_cut is not None and num_draft > 0:
+                    k = max(1, min(num_draft, int(draft_cut(draft_probs))))
+                    if k < num_draft:
+                        # drop drafts k.. before the verify pass
+                        trim_prompt_cache(draft_cache, num_draft - k)
+                        draft_tokens = draft_tokens[:k]
+                        num_draft = k
                 if prev_tokens is not None:
                     prev_tokens = prev_tokens[
                         : prev_tokens.size - y.size - num_draft + 1
@@ -650,6 +681,9 @@ def speculative_generate_step(
                     yield tn, lpn, True
                     if ntoks == max_tokens:
                         break
+                if round_log is not None:
+                    round_log.append({"draft_probs": draft_probs, "drafted": num_drafted,
+                                      "verified": num_draft, "accepted": n})
                 if ntoks < max_tokens:
                     ntoks += 1
                     yield tokens[n], logprobs[n], False
